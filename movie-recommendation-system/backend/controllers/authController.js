@@ -1,0 +1,6 @@
+import jwt from 'jsonwebtoken'; import User from '../models/User.js';
+const tokenFor = (user) => jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+const safeUser = (user) => ({ id: user._id, name: user.name, email: user.email });
+export async function register(req, res, next) { try { const { name, email, password } = req.body; if (!name || !email || !password) return res.status(400).json({ message: 'Name, email and password are required.' }); if (await User.findOne({ email })) return res.status(409).json({ message: 'An account with that email already exists.' }); const user = await User.create({ name, email, password }); res.status(201).json({ user: safeUser(user), token: tokenFor(user) }); } catch (error) { next(error); } }
+export async function login(req, res, next) { try { const { email, password } = req.body; const user = await User.findOne({ email }); if (!user || !(await user.comparePassword(password))) return res.status(401).json({ message: 'Invalid email or password.' }); res.json({ user: safeUser(user), token: tokenFor(user) }); } catch (error) { next(error); } }
+export async function me(req, res, next) { try { const user = await User.findById(req.userId); res.json({ user: safeUser(user) }); } catch (error) { next(error); } }

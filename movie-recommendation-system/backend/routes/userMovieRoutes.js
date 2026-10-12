@@ -1,0 +1,2 @@
+import { Router } from 'express'; import { requireAuth } from '../middleware/authMiddleware.js'; import { addWatchlist, getRatings, getWatchlist, removeWatchlist, saveRating } from '../controllers/userMovieController.js';
+const router = Router(); router.get('/ratings/:movieId', getRatings); router.use(requireAuth); router.post('/ratings', saveRating); router.get('/watchlist', getWatchlist); router.post('/watchlist', addWatchlist); router.delete('/watchlist/:movieId', removeWatchlist); export default router;

@@ -1,0 +1,4 @@
+import Movie from '../models/Movie.js';
+export async function listMovies(req, res, next) { try { const page = Math.max(Number(req.query.page) || 1, 1); const movies = await Movie.find().sort({ rating: -1 }).skip((page - 1) * 24).limit(24); res.json({ movies }); } catch (error) { next(error); } }
+export async function searchMovies(req, res, next) { try { const query = req.query.q?.trim(); if (!query) return res.status(400).json({ message: 'Search text is required.' }); const movies = await Movie.find({ title: { $regex: query, $options: 'i' } }).limit(30); res.json({ movies }); } catch (error) { next(error); } }
+export async function getMovie(req, res, next) { try { const movie = await Movie.findOne({ movieId: Number(req.params.id) }); if (!movie) return res.status(404).json({ message: 'Movie not found.' }); res.json({ movie }); } catch (error) { next(error); } }
